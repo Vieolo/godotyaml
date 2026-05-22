@@ -40,12 +40,37 @@ A `go.yaml` file has two zones:
 
 - **Root** — a closed set of project metadata: `name`, `description`, `version`,
   `schema_version`, `repo`, `issue_tracker`, `license`, `author`, and
-  `binaries`.
+  `executables`.
 - **`external`** — an open namespace where each tool stores arbitrary config
   under its own sub-key, e.g. `external.gomore`. The library treats each
   `external.<toolname>` section as an opaque blob: it can read it, hand it back
   to the caller to decode, and write a tool's section back, but it never parses
   or validates the section's internal structure.
+
+### `executables`
+
+`executables` is optional project metadata listing the executable entry points
+the project produces:
+
+```yaml
+executables:
+  server:
+    entrypoint: ./cmd/server   # required: dir containing package main, relative to project root
+    description: HTTP API server.  # optional
+  admin:
+    entrypoint: ./cmd/admin
+```
+
+- Each key is an author-chosen executable name; `entrypoint` is required and
+  `description` is optional.
+- **Absence of `executables` (or an empty `executables: {}`) means the project
+  produces no executables — i.e. it is a library.** Tools should treat absence
+  and an empty map as equivalent.
+- `executables` is **project metadata, not build configuration.** It carries no
+  output paths, OS/arch targets, build flags, or install destinations, and no
+  per-executable version (executables inherit the single project `version`).
+  Those build-specific concerns belong in the relevant build tool's
+  `external.<toolname>` section.
 
 See [`testdata/go.yaml`](testdata/go.yaml) for a complete example.
 
@@ -92,8 +117,9 @@ for _, a := range authors {
     fmt.Println(a.Name, a.Email)
 }
 
-bins, _ := doc.Binaries() // binary name -> OS -> output path
-fmt.Println(bins["exampled"]["linux"])
+execs, _ := doc.Executables() // name -> {Entrypoint, Description}
+fmt.Println(execs["server"].Entrypoint) // ./cmd/server
+// A nil or empty result means the project is a library.
 ```
 
 ### Read a tool's config

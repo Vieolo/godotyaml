@@ -23,13 +23,17 @@ author:
 # It must survive a round-trip untouched.
 future_field: experimental
 
-# Project build outputs: binary name -> OS -> output path.
-binaries:
-  exampled:
-    linux: ./dist/linux/exampled
-    darwin: ./dist/darwin/exampled
-  examplectl:
-    windows: ./dist/windows/examplectl.exe
+# Executable entry points this project produces. This is project metadata, not
+# build config: output paths, OS targets, and build flags belong in a build
+# tool's external.<toolname> section. Absent or empty means the project is a
+# library.
+executables:
+  server:
+    entrypoint: ./cmd/server
+    description: HTTP API server.
+  admin:
+    entrypoint: ./cmd/admin
+    description: Administrative CLI.
 
 # Tool-specific configuration. Each sub-key is opaque to godotyaml: it reads and
 # writes whole sections but never parses their internal shape.

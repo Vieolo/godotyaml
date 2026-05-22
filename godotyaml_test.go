@@ -72,7 +72,7 @@ func TestRoundTripPreservation(t *testing.T) {
 	}
 	want := []string{
 		"name", "version", "schema_version", "description", "repo",
-		"issue_tracker", "license", "author", "future_field", "binaries",
+		"issue_tracker", "license", "author", "future_field", "executables",
 		"external",
 	}
 	if strings.Join(order, ",") != strings.Join(want, ",") {
@@ -107,7 +107,7 @@ func TestRoundTripPreservation(t *testing.T) {
 	}
 }
 
-func TestAuthorsAndBinaries(t *testing.T) {
+func TestAuthors(t *testing.T) {
 	doc, err := Load("testdata/go.yaml")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
@@ -126,16 +126,94 @@ func TestAuthorsAndBinaries(t *testing.T) {
 	if authors[1].Name != "John Smith" {
 		t.Errorf("authors[1] = %+v", authors[1])
 	}
+}
 
-	bins, err := doc.Binaries()
+func TestExecutables(t *testing.T) {
+	doc, err := Load("testdata/go.yaml")
 	if err != nil {
-		t.Fatalf("Binaries: %v", err)
+		t.Fatalf("Load: %v", err)
 	}
-	if bins["exampled"]["linux"] != "./dist/linux/exampled" {
-		t.Errorf("binaries[exampled][linux] = %q", bins["exampled"]["linux"])
+
+	execs, err := doc.Executables()
+	if err != nil {
+		t.Fatalf("Executables: %v", err)
 	}
-	if bins["examplectl"]["windows"] != "./dist/windows/examplectl.exe" {
-		t.Errorf("binaries[examplectl][windows] = %q", bins["examplectl"]["windows"])
+	if len(execs) != 2 {
+		t.Fatalf("Executables() len = %d, want 2", len(execs))
+	}
+	if execs["server"].Entrypoint != "./cmd/server" || execs["server"].Description != "HTTP API server." {
+		t.Errorf("server = %+v", execs["server"])
+	}
+	if execs["admin"].Entrypoint != "./cmd/admin" || execs["admin"].Description != "Administrative CLI." {
+		t.Errorf("admin = %+v", execs["admin"])
+	}
+}
+
+// TestExecutablesEdgeCases covers the permissive, library-friendly behavior:
+// absence, an empty map, and entries missing optional/required fields all parse
+// without error (the library does not validate).
+func TestExecutablesEdgeCases(t *testing.T) {
+	cases := []struct {
+		name    string
+		yaml    string
+		wantLen int
+		check   func(t *testing.T, e Executables)
+	}{
+		{
+			name:    "absent means library project",
+			yaml:    "name: lib\nversion: 1.0.0\n",
+			wantLen: 0,
+		},
+		{
+			name:    "empty map equivalent to absent",
+			yaml:    "name: lib\nversion: 1.0.0\nexecutables: {}\n",
+			wantLen: 0,
+		},
+		{
+			name:    "missing entrypoint is permissive (zero-valued, no error)",
+			yaml:    "executables:\n  tool:\n    description: no entrypoint here\n",
+			wantLen: 1,
+			check: func(t *testing.T, e Executables) {
+				if e["tool"].Entrypoint != "" {
+					t.Errorf("Entrypoint = %q, want empty", e["tool"].Entrypoint)
+				}
+				if e["tool"].Description != "no entrypoint here" {
+					t.Errorf("Description = %q", e["tool"].Description)
+				}
+			},
+		},
+		{
+			name:    "entrypoint without description succeeds",
+			yaml:    "executables:\n  tool:\n    entrypoint: ./cmd/tool\n",
+			wantLen: 1,
+			check: func(t *testing.T, e Executables) {
+				if e["tool"].Entrypoint != "./cmd/tool" {
+					t.Errorf("Entrypoint = %q", e["tool"].Entrypoint)
+				}
+				if e["tool"].Description != "" {
+					t.Errorf("Description = %q, want empty", e["tool"].Description)
+				}
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			doc, err := Parse(strings.NewReader(tc.yaml))
+			if err != nil {
+				t.Fatalf("Parse: %v", err)
+			}
+			execs, err := doc.Executables()
+			if err != nil {
+				t.Fatalf("Executables: %v", err)
+			}
+			if len(execs) != tc.wantLen {
+				t.Fatalf("len = %d, want %d", len(execs), tc.wantLen)
+			}
+			if tc.check != nil {
+				tc.check(t, execs)
+			}
+		})
 	}
 }
 

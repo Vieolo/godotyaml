@@ -4,7 +4,7 @@
 // It is the parser/helper layer other tools depend on so they do not each
 // roll their own YAML handling for go.yaml. A go.yaml file has two zones: a
 // closed set of root project metadata (name, version, schema_version,
-// binaries, ...) exposed here as typed accessors, and an open external
+// executables, ...) exposed here as typed accessors, and an open external
 // namespace where each tool stores arbitrary config under external.<toolname>.
 // External sections are treated as opaque: the library reads them, hands them
 // back to the caller to decode, and writes a single tool's section back without

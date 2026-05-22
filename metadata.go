@@ -12,9 +12,20 @@ type Author struct {
 	URL          string `yaml:"url,omitempty"`
 }
 
-// Binaries maps a binary name to a map of OS to output path. This shape is
-// intentionally isolated so it can evolve alongside the go.yaml spec.
-type Binaries map[string]map[string]string
+// Executable describes one executable entry point the project produces. It is
+// project metadata only: it carries no output paths, OS/arch targets, build
+// flags, or per-executable versions (every executable inherits the single
+// project version). Build-specific concerns belong in a build tool's
+// external.<toolname> section, not here.
+type Executable struct {
+	Entrypoint  string `yaml:"entrypoint"`            // directory holding package main, relative to project root
+	Description string `yaml:"description,omitempty"` // optional human-readable purpose
+}
+
+// Executables maps an author-chosen executable name to its definition. Absence
+// of the root key and an empty map are equivalent (both have length 0): the
+// project produces no executables, i.e. it is a library.
+type Executables map[string]Executable
 
 // Name returns the root name field.
 func (d *Document) Name() string { return d.scalar("name") }
@@ -78,18 +89,19 @@ func (d *Document) Authors() ([]Author, error) {
 	}
 }
 
-// Binaries returns the root binaries field, or nil if absent. It returns an
-// error only if the section does not match the Binaries shape.
-func (d *Document) Binaries() (Binaries, error) {
-	v := mappingValue(d.root, "binaries")
+// Executables returns the root executables field, or nil if absent. Absence and
+// an empty map are equivalent. It returns an error only if the section does not
+// match the Executables shape.
+func (d *Document) Executables() (Executables, error) {
+	v := mappingValue(d.root, "executables")
 	if v == nil {
 		return nil, nil
 	}
-	var b Binaries
-	if err := v.Decode(&b); err != nil {
+	var e Executables
+	if err := v.Decode(&e); err != nil {
 		return nil, err
 	}
-	return b, nil
+	return e, nil
 }
 
 // scalar returns the string value of a root scalar key, or "" if the key is
