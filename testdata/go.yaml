@@ -1,0 +1,49 @@
+# go.yaml — project metadata and tool configuration.
+# This file is human-edited; comments, key ordering, and unknown keys are all
+# preserved when a tool reads and writes it back.
+
+name: example-project
+# The semantic version of the project.
+version: 1.4.2
+schema_version: "1"
+
+description: A sample project that exercises the full go.yaml structure.
+repo: https://github.com/vieolo/example-project
+issue_tracker: https://github.com/vieolo/example-project/issues
+license: MIT
+
+# author may be a sequence of objects (name + optional fields).
+author:
+  - name: Jane Doe
+    email: jane@example.com
+    organization: Vieolo
+  - name: John Smith
+
+# A root key from a newer spec version that this library does not know about.
+# It must survive a round-trip untouched.
+future_field: experimental
+
+# Project build outputs: binary name -> OS -> output path.
+binaries:
+  exampled:
+    linux: ./dist/linux/exampled
+    darwin: ./dist/darwin/exampled
+  examplectl:
+    windows: ./dist/windows/examplectl.exe
+
+# Tool-specific configuration. Each sub-key is opaque to godotyaml: it reads and
+# writes whole sections but never parses their internal shape.
+external:
+  gomore:
+    # gomore keeps an ordered list of tasks.
+    tasks:
+      - build
+      - test
+    parallel: true
+  golangci-lint:
+    linters:
+      enable:
+        - govet
+        - staticcheck
+    run:
+      timeout: 5m
