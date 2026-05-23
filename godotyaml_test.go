@@ -120,7 +120,7 @@ func TestAuthors(t *testing.T) {
 	if len(authors) != 2 {
 		t.Fatalf("Authors() len = %d, want 2", len(authors))
 	}
-	if authors[0].Name != "Jane Doe" || authors[0].Email != "jane@example.com" || authors[0].Organization != "Vieolo" {
+	if authors[0].Name != "Jane Doe" || authors[0].Email != "jane@example.com" || authors[0].Organization != "Vieolo" || authors[0].URL != "example.com" {
 		t.Errorf("authors[0] = %+v", authors[0])
 	}
 	if authors[1].Name != "John Smith" {

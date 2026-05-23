@@ -17,6 +17,7 @@ authors:
   - name: Jane Doe
     email: jane@example.com
     organization: Vieolo
+    url: example.com
   - name: John Smith
 
 # A root key from a newer spec version that this library does not know about.

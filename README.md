@@ -51,6 +51,7 @@ authors:
   - name: Jane Doe
     email: jane@example.com
     organization: Vieolo
+    url: example.com
   - name: John Smith
   
   
