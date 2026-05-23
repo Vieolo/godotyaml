@@ -85,7 +85,7 @@ func (d *Document) externalMapping() *yaml.Node {
 }
 
 // ensureExternal returns the external mapping node, creating it (or replacing a
-// non-mapping value) if necessary. The caller must have verified d.root is a
+// non-mapping value) if necessary. The caller must have verified d.Root is a
 // mapping.
 func (d *Document) ensureExternal() *yaml.Node {
 	for i := 0; i+1 < len(d.Root.Content); i += 2 {
