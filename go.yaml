@@ -1,6 +1,6 @@
 name: godotyaml
 description: The spec and parser for go.yaml
-version: 0.0.1
+version: 0.1.0
 schema_version: 0
 repository: https://github.com/vieolo/godotyaml
 issue_tracker: https://github.com/vieolo/godotyaml/issues
