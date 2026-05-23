@@ -128,7 +128,7 @@ type lintConfig struct {
 }
 
 var cfg lintConfig
-ok, err := doc.DecodeConfig("my-linter", &cfg)
+ok, err := doc.DecodeExternalConfig("my-linter", &cfg)
 if err != nil {
     log.Fatal(err)
 }
@@ -137,7 +137,7 @@ if !ok {
 }
 
 // Or get the raw node and decode it yourself.
-node, ok := doc.Config("my-linter")
+node, ok := doc.GetRawExternalConfig("my-linter")
 ```
 
 ### Write a tool's config
@@ -145,7 +145,7 @@ node, ok := doc.Config("my-linter")
 ```go
 // Updates only external.my-linter; every other section, all comments, and
 // key ordering are left untouched.
-err := doc.SetConfig("my-linter", map[string]any{
+err := doc.SetExternalConfig("my-linter", map[string]any{
     "linters": map[string]any{
         "enable": []string{"govet", "staticcheck"},
     },

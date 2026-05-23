@@ -8,7 +8,7 @@ import (
 )
 
 // Author describes a single entry in the root authors field. Only Name is
-// expected to be present; the remaining fields are optional and tools may carry
+// expected to be present and the remaining fields are optional and tools may carry
 // additional information the spec adds later by decoding the raw node directly.
 type Author struct {
 	Name         string `yaml:"name"`
@@ -18,7 +18,7 @@ type Author struct {
 }
 
 // Executable describes one executable entry point the project produces. It is
-// project metadata only: it carries no output paths, OS/arch targets, build
+// project metadata only as it carries no output paths, OS/arch targets, build
 // flags, or per-executable versions (every executable inherits the single
 // project version). Build-specific concerns belong in a build tool's
 // external.<toolname> section, not here.
@@ -43,14 +43,14 @@ func (d *Document) Version() string { return d.scalar("version") }
 
 // SchemaVersion returns the root schema_version as an integer.
 //
-// The schema version is a single incrementing integer (0, 1, 2, ...); there are
+// The schema version is a single incrementing integer (0, 1, 2, ...). There are
 // no minor versions such as 1.1. It returns (0, nil) when the key is absent. If
 // the value is present but not a valid integer it returns a non-nil error: the
 // file still parses (Load/Parse never reject it) and the malformed value is
 // surfaced here rather than silently coerced. Quoted scalars (e.g. "1") are
 // accepted.
 func (d *Document) SchemaVersion() (int, error) {
-	v := mappingValue(d.root, "schema_version")
+	v := mappingValue(d.Root, "schema_version")
 	if v == nil || v.Kind != yaml.ScalarNode {
 		return 0, nil
 	}
@@ -77,7 +77,7 @@ func (d *Document) License() string { return d.scalar("license") }
 // bare string becomes an Author with only Name set. It returns nil when the
 // field is absent and an error only if a mapping entry cannot be decoded.
 func (d *Document) Authors() ([]Author, error) {
-	v := mappingValue(d.root, "authors")
+	v := mappingValue(d.Root, "authors")
 	if v == nil {
 		return nil, nil
 	}
@@ -114,7 +114,7 @@ func (d *Document) Authors() ([]Author, error) {
 // an empty map are equivalent. It returns an error only if the section does not
 // match the Executables shape.
 func (d *Document) Executables() (Executables, error) {
-	v := mappingValue(d.root, "executables")
+	v := mappingValue(d.Root, "executables")
 	if v == nil {
 		return nil, nil
 	}
@@ -128,7 +128,7 @@ func (d *Document) Executables() (Executables, error) {
 // scalar returns the string value of a root scalar key, or "" if the key is
 // absent or its value is not a scalar.
 func (d *Document) scalar(key string) string {
-	v := mappingValue(d.root, key)
+	v := mappingValue(d.Root, key)
 	if v == nil || v.Kind != yaml.ScalarNode {
 		return ""
 	}

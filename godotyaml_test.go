@@ -33,7 +33,7 @@ func TestRoundTripPreservation(t *testing.T) {
 		},
 		"run": map[string]any{"timeout": "10m"},
 	}
-	if err := doc.SetConfig("golangci-lint", newCfg); err != nil {
+	if err := doc.SetExternalConfig("golangci-lint", newCfg); err != nil {
 		t.Fatalf("SetConfig: %v", err)
 	}
 
@@ -67,8 +67,8 @@ func TestRoundTripPreservation(t *testing.T) {
 
 	// Root key ordering must be preserved exactly (it is not alphabetical).
 	var order []string
-	for i := 0; i+1 < len(rt.root.Content); i += 2 {
-		order = append(order, rt.root.Content[i].Value)
+	for i := 0; i+1 < len(rt.Root.Content); i += 2 {
+		order = append(order, rt.Root.Content[i].Value)
 	}
 	want := []string{
 		"name", "version", "schema_version", "description", "repository",
@@ -85,7 +85,7 @@ func TestRoundTripPreservation(t *testing.T) {
 		Tasks    []string `yaml:"tasks"`
 		Parallel bool     `yaml:"parallel"`
 	}
-	ok, err := rt.DecodeConfig("gomore", &gomore)
+	ok, err := rt.DecodeExternalConfig("gomore", &gomore)
 	if err != nil || !ok {
 		t.Fatalf("DecodeConfig(gomore): ok=%v err=%v", ok, err)
 	}
@@ -98,7 +98,7 @@ func TestRoundTripPreservation(t *testing.T) {
 		Linters map[string][]string `yaml:"linters"`
 		Run     map[string]string   `yaml:"run"`
 	}
-	ok, err = rt.DecodeConfig("golangci-lint", &lint)
+	ok, err = rt.DecodeExternalConfig("golangci-lint", &lint)
 	if err != nil || !ok {
 		t.Fatalf("DecodeConfig(golangci-lint): ok=%v err=%v", ok, err)
 	}
@@ -253,15 +253,15 @@ func TestConfigNamesAndMissing(t *testing.T) {
 		t.Fatalf("Load: %v", err)
 	}
 
-	names := doc.ConfigNames()
+	names := doc.ExternalConfigNames()
 	if strings.Join(names, ",") != "gomore,golangci-lint" {
 		t.Errorf("ConfigNames() = %v", names)
 	}
 
-	if _, ok := doc.Config("does-not-exist"); ok {
+	if _, ok := doc.GetRawExternalConfig("does-not-exist"); ok {
 		t.Errorf("Config returned ok for a missing section")
 	}
-	ok, err := doc.DecodeConfig("does-not-exist", &struct{}{})
+	ok, err := doc.DecodeExternalConfig("does-not-exist", &struct{}{})
 	if err != nil || ok {
 		t.Errorf("DecodeConfig(missing): ok=%v err=%v", ok, err)
 	}
@@ -272,7 +272,7 @@ func TestSetConfigOnEmptyDocument(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Parse(empty): %v", err)
 	}
-	if err := doc.SetConfig("newtool", map[string]any{"enabled": true}); err != nil {
+	if err := doc.SetExternalConfig("newtool", map[string]any{"enabled": true}); err != nil {
 		t.Fatalf("SetConfig: %v", err)
 	}
 

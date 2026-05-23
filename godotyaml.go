@@ -16,11 +16,11 @@ import (
 // canonical (rather than unmarshaling into a struct) is what lets the library
 // preserve comments, key ordering, and unknown keys across a load/save cycle.
 type Document struct {
-	doc  *yaml.Node // the document node returned by the decoder
-	root *yaml.Node // the root mapping node (doc.Content[0])
+	Doc  *yaml.Node // the document node returned by the decoder
+	Root *yaml.Node // the root mapping node (doc.Content[0])
 }
 
-// Parse reads a go.yaml document from r.
+// reads a go.yaml document from the given io.Reader
 //
 // An empty input yields an empty document with a writable root mapping rather
 // than an error, so callers can build a file from scratch.
@@ -33,19 +33,19 @@ func Parse(r io.Reader) (*Document, error) {
 		return nil, err
 	}
 
-	d := &Document{doc: &node}
+	d := &Document{Doc: &node}
 	if len(node.Content) > 0 {
-		d.root = node.Content[0]
+		d.Root = node.Content[0]
 	}
-	if d.root == nil {
+	if d.Root == nil {
 		root := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
-		d.doc.Content = []*yaml.Node{root}
-		d.root = root
+		d.Doc.Content = []*yaml.Node{root}
+		d.Root = root
 	}
 	return d, nil
 }
 
-// Load reads and parses the go.yaml file at path.
+// reads and parses the go.yaml file at given path
 func Load(path string) (*Document, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -55,22 +55,22 @@ func Load(path string) (*Document, error) {
 	return Parse(f)
 }
 
-// Write serializes the document to w, preserving comments and key ordering.
+// serializes the document to the given io.Writer, preserving comments and key ordering
 //
 // Indentation is normalized to two spaces; yaml.v3 does not record the source
 // file's original indent width, so that one stylistic detail is not preserved.
-// Structure and ordering are.
+// Structure and ordering are
 func (d *Document) Write(w io.Writer) error {
 	enc := yaml.NewEncoder(w)
 	enc.SetIndent(2)
-	if err := enc.Encode(d.doc); err != nil {
+	if err := enc.Encode(d.Doc); err != nil {
 		_ = enc.Close()
 		return err
 	}
 	return enc.Close()
 }
 
-// Save writes the document back to the file at path.
+// writes the document back to the file at path.
 //
 // The file is rendered fully in memory first so a serialization error cannot
 // leave a truncated file on disk.
@@ -85,7 +85,7 @@ func (d *Document) Save(path string) error {
 func newEmpty() *Document {
 	root := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	doc := &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{root}}
-	return &Document{doc: doc, root: root}
+	return &Document{Doc: doc, Root: root}
 }
 
 // mappingValue returns the value node for key in mapping m, or nil if m is not
