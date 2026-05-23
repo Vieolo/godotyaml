@@ -40,8 +40,8 @@ func (d *Document) Version() string { return d.scalar("version") }
 // never validated or interpreted; unknown values are surfaced as-is.
 func (d *Document) SchemaVersion() string { return d.scalar("schema_version") }
 
-// Repo returns the root repo field, or "" if absent.
-func (d *Document) Repo() string { return d.scalar("repo") }
+// Repository returns the root repository field, or "" if absent.
+func (d *Document) Repository() string { return d.scalar("repository") }
 
 // IssueTracker returns the root issue_tracker field, or "" if absent.
 func (d *Document) IssueTracker() string { return d.scalar("issue_tracker") }

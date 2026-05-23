@@ -5,10 +5,10 @@
 name: example-project
 # The semantic version of the project.
 version: 1.4.2
-schema_version: "1"
+schema_version: 0
 
 description: A sample project that exercises the full go.yaml structure.
-repo: https://github.com/vieolo/example-project
+repository: https://github.com/vieolo/example-project
 issue_tracker: https://github.com/vieolo/example-project/issues
 license: MIT
 

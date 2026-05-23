@@ -71,7 +71,7 @@ func TestRoundTripPreservation(t *testing.T) {
 		order = append(order, rt.root.Content[i].Value)
 	}
 	want := []string{
-		"name", "version", "schema_version", "description", "repo",
+		"name", "version", "schema_version", "description", "repository",
 		"issue_tracker", "license", "author", "future_field", "executables",
 		"external",
 	}
