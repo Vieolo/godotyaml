@@ -1,0 +1,12 @@
+name: godotyaml
+description: The spec and parser for go.yaml
+version: 0.0.1
+schema_version: 0
+repository: https://github.com/vieolo/godotyaml
+issue_tracker: https://github.com/vieolo/godotyaml/issues
+license: MIT
+
+authors: 
+  - name: Vieolo
+
+# external:
