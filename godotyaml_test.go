@@ -22,8 +22,8 @@ func TestRoundTripPreservation(t *testing.T) {
 	if got, want := doc.Version(), "1.4.2"; got != want {
 		t.Errorf("Version() = %q, want %q", got, want)
 	}
-	if got, want := doc.SchemaVersion(), "1"; got != want {
-		t.Errorf("SchemaVersion() = %q, want %q", got, want)
+	if sv, err := doc.SchemaVersion(); err != nil || sv != 0 {
+		t.Errorf("SchemaVersion() = %d, err = %v; want 0, nil", sv, err)
 	}
 
 	// Mutate exactly one external section.
@@ -72,7 +72,7 @@ func TestRoundTripPreservation(t *testing.T) {
 	}
 	want := []string{
 		"name", "version", "schema_version", "description", "repository",
-		"issue_tracker", "license", "author", "future_field", "executables",
+		"issue_tracker", "license", "authors", "future_field", "executables",
 		"external",
 	}
 	if strings.Join(order, ",") != strings.Join(want, ",") {
@@ -212,6 +212,36 @@ func TestExecutablesEdgeCases(t *testing.T) {
 			}
 			if tc.check != nil {
 				tc.check(t, execs)
+			}
+		})
+	}
+}
+
+func TestSchemaVersion(t *testing.T) {
+	cases := []struct {
+		name    string
+		yaml    string
+		want    int
+		wantErr bool
+	}{
+		{name: "integer", yaml: "schema_version: 2\n", want: 2},
+		{name: "quoted integer accepted", yaml: "schema_version: \"3\"\n", want: 3},
+		{name: "absent returns zero, no error", yaml: "name: lib\n", want: 0},
+		{name: "non-integer surfaced as error", yaml: "schema_version: 1.1\n", want: 0, wantErr: true},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			doc, err := Parse(strings.NewReader(tc.yaml))
+			if err != nil {
+				t.Fatalf("Parse: %v", err)
+			}
+			got, err := doc.SchemaVersion()
+			if (err != nil) != tc.wantErr {
+				t.Fatalf("SchemaVersion() err = %v, wantErr = %v", err, tc.wantErr)
+			}
+			if got != tc.want {
+				t.Errorf("SchemaVersion() = %d, want %d", got, tc.want)
 			}
 		})
 	}

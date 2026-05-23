@@ -1,8 +1,13 @@
 package godotyaml
 
-import "gopkg.in/yaml.v3"
+import (
+	"fmt"
+	"strconv"
 
-// Author describes a single entry in the root author field. Only Name is
+	"gopkg.in/yaml.v3"
+)
+
+// Author describes a single entry in the root authors field. Only Name is
 // expected to be present; the remaining fields are optional and tools may carry
 // additional information the spec adds later by decoding the raw node directly.
 type Author struct {
@@ -36,9 +41,25 @@ func (d *Document) Description() string { return d.scalar("description") }
 // Version returns the root version field.
 func (d *Document) Version() string { return d.scalar("version") }
 
-// SchemaVersion returns the root schema_version field verbatim. The value is
-// never validated or interpreted; unknown values are surfaced as-is.
-func (d *Document) SchemaVersion() string { return d.scalar("schema_version") }
+// SchemaVersion returns the root schema_version as an integer.
+//
+// The schema version is a single incrementing integer (0, 1, 2, ...); there are
+// no minor versions such as 1.1. It returns (0, nil) when the key is absent. If
+// the value is present but not a valid integer it returns a non-nil error: the
+// file still parses (Load/Parse never reject it) and the malformed value is
+// surfaced here rather than silently coerced. Quoted scalars (e.g. "1") are
+// accepted.
+func (d *Document) SchemaVersion() (int, error) {
+	v := mappingValue(d.root, "schema_version")
+	if v == nil || v.Kind != yaml.ScalarNode {
+		return 0, nil
+	}
+	n, err := strconv.Atoi(v.Value)
+	if err != nil {
+		return 0, fmt.Errorf("godotyaml: schema_version %q is not an integer: %w", v.Value, err)
+	}
+	return n, nil
+}
 
 // Repository returns the root repository field, or "" if absent.
 func (d *Document) Repository() string { return d.scalar("repository") }
@@ -49,14 +70,14 @@ func (d *Document) IssueTracker() string { return d.scalar("issue_tracker") }
 // License returns the root license field, or "" if absent.
 func (d *Document) License() string { return d.scalar("license") }
 
-// Authors returns the root author field as a list.
+// Authors returns the root authors field as a list.
 //
 // The field may appear in the file as a bare string, a single mapping, or a
 // sequence of strings and/or mappings; all forms are normalized to []Author. A
 // bare string becomes an Author with only Name set. It returns nil when the
 // field is absent and an error only if a mapping entry cannot be decoded.
 func (d *Document) Authors() ([]Author, error) {
-	v := mappingValue(d.root, "author")
+	v := mappingValue(d.root, "authors")
 	if v == nil {
 		return nil, nil
 	}

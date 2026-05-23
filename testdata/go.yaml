@@ -12,8 +12,8 @@ repository: https://github.com/vieolo/example-project
 issue_tracker: https://github.com/vieolo/example-project/issues
 license: MIT
 
-# author may be a sequence of objects (name + optional fields).
-author:
+# authors may be a sequence of objects (name + optional fields).
+authors:
   - name: Jane Doe
     email: jane@example.com
     organization: Vieolo
