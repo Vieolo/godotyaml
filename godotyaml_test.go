@@ -11,7 +11,7 @@ import (
 // that comments, the sibling section, unknown root keys, and ordering all
 // survive.
 func TestRoundTripPreservation(t *testing.T) {
-	doc, err := Load("testdata/go.yaml")
+	doc, err := Load("testdata/test.yaml")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -108,7 +108,7 @@ func TestRoundTripPreservation(t *testing.T) {
 }
 
 func TestAuthors(t *testing.T) {
-	doc, err := Load("testdata/go.yaml")
+	doc, err := Load("testdata/test.yaml")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -129,7 +129,7 @@ func TestAuthors(t *testing.T) {
 }
 
 func TestExecutables(t *testing.T) {
-	doc, err := Load("testdata/go.yaml")
+	doc, err := Load("testdata/test.yaml")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
@@ -248,7 +248,7 @@ func TestSchemaVersion(t *testing.T) {
 }
 
 func TestConfigNamesAndMissing(t *testing.T) {
-	doc, err := Load("testdata/go.yaml")
+	doc, err := Load("testdata/test.yaml")
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
