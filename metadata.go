@@ -67,6 +67,14 @@ func (d *Document) Repository() string { return d.scalar("repository") }
 // IssueTracker returns the root issue_tracker field, or "" if absent.
 func (d *Document) IssueTracker() string { return d.scalar("issue_tracker") }
 
+// Homepage returns the root homepage field (the project's website), or "" if
+// absent.
+func (d *Document) Homepage() string { return d.scalar("homepage") }
+
+// Documentation returns the root documentation field (the project's docs URL),
+// or "" if absent.
+func (d *Document) Documentation() string { return d.scalar("documentation") }
+
 // License returns the root license field, or "" if absent.
 func (d *Document) License() string { return d.scalar("license") }
 

@@ -10,6 +10,8 @@ schema_version: 0
 description: A sample project that exercises the full go.yaml structure.
 repository: https://github.com/vieolo/example-project
 issue_tracker: https://github.com/vieolo/example-project/issues
+homepage: https://example.com
+documentation: https://docs.example.com
 license: MIT
 
 # authors may be a sequence of objects (name + optional fields).

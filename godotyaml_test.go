@@ -72,8 +72,8 @@ func TestRoundTripPreservation(t *testing.T) {
 	}
 	want := []string{
 		"name", "version", "schema_version", "description", "repository",
-		"issue_tracker", "license", "authors", "future_field", "executables",
-		"external",
+		"issue_tracker", "homepage", "documentation", "license", "authors",
+		"future_field", "executables", "external",
 	}
 	if strings.Join(order, ",") != strings.Join(want, ",") {
 		t.Errorf("root key ordering changed:\n got %v\nwant %v", order, want)
@@ -125,6 +125,29 @@ func TestAuthors(t *testing.T) {
 	}
 	if authors[1].Name != "John Smith" {
 		t.Errorf("authors[1] = %+v", authors[1])
+	}
+}
+
+func TestProjectURLs(t *testing.T) {
+	doc, err := Load("testdata/test.yaml")
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if got, want := doc.Homepage(), "https://example.com"; got != want {
+		t.Errorf("Homepage() = %q, want %q", got, want)
+	}
+	if got, want := doc.Documentation(), "https://docs.example.com"; got != want {
+		t.Errorf("Documentation() = %q, want %q", got, want)
+	}
+
+	// Absent fields return "".
+	empty, err := Parse(strings.NewReader("name: lib\n"))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if empty.Homepage() != "" || empty.Documentation() != "" {
+		t.Errorf("absent URL fields should be empty, got homepage=%q documentation=%q",
+			empty.Homepage(), empty.Documentation())
 	}
 }
 

@@ -43,6 +43,8 @@ version: 1.26.3 # The version of your project
 schema_version: 0 # The version of schema
 repository: https//... # The URL of the repository of the project
 issue_tracker: https://... # The URL of the issue tracker of the project
+homepage: https://... # Optional URL of the project's homepage/website
+documentation: https://... # Optional URL of the project's documentation
 license: MIT # The license of the project
 
 # The list of authors
