@@ -6,9 +6,19 @@
 // closed set of root project metadata (name, version, schema_version,
 // executables, ...) exposed here as typed accessors, and an open external
 // namespace where each tool stores arbitrary config under external.<toolname>.
+// New builds a document from that root metadata, so a tool offering an `init`
+// command does not have to assemble the file itself.
 // External sections are treated as opaque: the library reads them, hands them
 // back to the caller to decode, and writes a single tool's section back without
 // disturbing the rest of the file.
+//
+// Writing a section comes in two flavours, and which one a tool wants is a real
+// decision rather than a detail. SetExternalConfig replaces external.<toolname>
+// outright, so keys and hand-written comments inside it that the caller did not
+// supply are discarded. MergeExternalConfig merges into it instead, leaving
+// everything the caller did not mention (including comments) in place, at the
+// cost of never removing anything. RemoveExternalConfig and
+// RemoveExternalConfigKey are how things are removed deliberately.
 //
 // The yaml.v3 node tree is kept as the internal source of truth so that
 // comments, key ordering, and unknown root keys survive a load/save cycle, and
