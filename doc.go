@@ -10,6 +10,14 @@
 // back to the caller to decode, and writes a single tool's section back without
 // disturbing the rest of the file.
 //
+// Writing a section comes in two flavours, and which one a tool wants is a real
+// decision rather than a detail. SetExternalConfig replaces external.<toolname>
+// outright, so keys and hand-written comments inside it that the caller did not
+// supply are discarded. MergeExternalConfig merges into it instead, leaving
+// everything the caller did not mention (including comments) in place, at the
+// cost of never removing anything. RemoveExternalConfig and
+// RemoveExternalConfigKey are how things are removed deliberately.
+//
 // The yaml.v3 node tree is kept as the internal source of truth so that
 // comments, key ordering, and unknown root keys survive a load/save cycle, and
 // so that updating one tool's section never re-serializes (and never corrupts)
