@@ -6,7 +6,17 @@ repository: https://github.com/vieolo/godotyaml
 issue_tracker: https://github.com/vieolo/godotyaml/issues
 license: MIT
 
-authors: 
+authors:
   - name: Vieolo
 
-# external:
+external:
+  contour:
+    # the central store profiles whose rules load eagerly here.
+    # List more than one to combine entry points — [python, cli] for a Python
+    # project that also ships a CLI. They compose in order, and an item both
+    # profiles select is loaded once. A bare name works too: bootstrap: python
+    # The --bootstrap flag to `contour mcp` overrides this.
+    bootstrap: [go]
+    # files loaded eagerly as project rules, paths relative to the project
+    # root. Keep a CLAUDE.md or AGENTS.md without moving it into rules/.
+    eager_files: []
