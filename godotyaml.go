@@ -146,6 +146,35 @@ func (d *Document) Save(path string) error {
 	return nil
 }
 
+// writes the document to path only if no file is there yet.
+//
+// This is the write an `init` command wants. A go.yaml holds every tool's
+// configuration as well as the project metadata, so overwriting one that already
+// exists destroys other tools' data; SaveNew refuses instead of clobbering. If
+// path exists the returned error satisfies os.IsExist (and errors.Is(err,
+// fs.ErrExist)), which the caller can report as "this project already has a
+// go.yaml".
+//
+// The check is not a stat followed by a write: the file is created exclusively,
+// so two `init` runs racing each other cannot both decide the path was free. The
+// content is then written with the same atomic replace Save uses.
+func (d *Document) SaveNew(path string) error {
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0o644)
+	if err != nil {
+		return err
+	}
+	if err := f.Close(); err != nil {
+		return errors.Join(err, os.Remove(path))
+	}
+	// path now exists and is ours, and is empty: a failure below leaves nothing
+	// worth keeping, so it is removed rather than left as a stub that a later
+	// init would refuse to overwrite.
+	if err := d.Save(path); err != nil {
+		return errors.Join(err, os.Remove(path))
+	}
+	return nil
+}
+
 func newEmpty() *Document {
 	root := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	doc := &yaml.Node{Kind: yaml.DocumentNode, Content: []*yaml.Node{root}}

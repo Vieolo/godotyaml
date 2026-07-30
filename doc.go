@@ -6,6 +6,8 @@
 // closed set of root project metadata (name, version, schema_version,
 // executables, ...) exposed here as typed accessors, and an open external
 // namespace where each tool stores arbitrary config under external.<toolname>.
+// New builds a document from that root metadata, so a tool offering an `init`
+// command does not have to assemble the file itself.
 // External sections are treated as opaque: the library reads them, hands them
 // back to the caller to decode, and writes a single tool's section back without
 // disturbing the rest of the file.
